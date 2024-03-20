@@ -1,8 +1,11 @@
 package io.spring.workshop.reactornetty.udp;
 
+import mysnippets.UDP.UDPServer;
 import org.junit.jupiter.api.Test;
 import reactor.netty.Connection;
 import reactor.netty.resources.LoopResources;
+import reactor.netty.udp.UdpServer;
+import reactor.netty.udp.UdpServerConfig;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -24,11 +27,17 @@ public class UdpEchoTests {
     public void echoTest() throws Exception {
         // TODO
         // Task 1:
-        // 1.1. Prepare the UDP server
-        // 1.2. Configure the port to which this server should bind
-        // 1.3. Bind the server
-        // 1.4. Subscribe to the returned Mono<Connection> and block
-        //
+        UdpServer.create() // 1.1. Prepare the UDP server
+                .doOnBind(t -> System.out.println("Bind " + t.toString()))
+                .doOnBound(t -> System.out.println("Started " + t.toString()))
+                .doOnUnbound(t -> System.out.println("Shutdown " + t.toString()))
+                .port(6969)
+                .host("127.0.0.1") // 1.2. Configure the port to which this server should bind
+                .wiretap(true)
+                .bind() // 1.3. Bind the server
+                .block(); // 1.4. Subscribe to the returned Mono<Connection> and block
+
+
         // Task 3:
         // 3.1. Create a new simple LoopResources
         // 3.2. Configure the UDP server to run on this newly created LoopResources
@@ -68,7 +77,6 @@ public class UdpEchoTests {
 
         assertTrue(latch.await(30, TimeUnit.SECONDS));
 
-        // TODO
         // Task 2:
         // 2.1. Close the underlying channel opened by the UDP server
 
